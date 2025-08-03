@@ -22,7 +22,6 @@ function App() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Load categories once when the app starts
     const loadInitialData = async () => {
       await db.init();
       const cats = await db.getCategories();
@@ -38,9 +37,6 @@ function App() {
         title: "Activity Logged",
         description: `Successfully logged ${activity.name}.`
       });
-      // You might want to add a global state management or event emitter
-      // to notify the dashboard to refresh its data.
-      // For now, a page refresh would be needed to see the update on the dashboard.
     } catch (error) {
       toast({
         title: "Error",
@@ -57,7 +53,7 @@ function App() {
           <SidebarProvider>
             <div className="min-h-screen flex w-full">
               <AppSidebar />
-              <div className="flex-1 flex flex-col relative"> {/* Added relative positioning */}
+              <div className="flex-1 flex flex-col">
                 <header className="h-12 flex items-center border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40">
                   <SidebarTrigger className="ml-4" />
                 </header>
@@ -70,24 +66,23 @@ function App() {
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </main>
-
-                {/* [NEW] Floating Action Button */}
-                <div className="absolute bottom-8 right-8 z-50">
-                  <Button
-                    onClick={() => setIsModalOpen(true)}
-                    className="h-16 w-16 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-lg hover:scale-110 transition-transform"
-                  >
-                    <Plus className="h-8 w-8" />
-                  </Button>
-                </div>
               </div>
             </div>
           </SidebarProvider>
           <Toaster />
+
+          {/* [FIXED] FAB moved outside the main scrolling container and position changed to 'fixed' */}
+          <div className="fixed bottom-8 right-8 z-50">
+            <Button
+              onClick={() => setIsModalOpen(true)}
+              className="h-16 w-16 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-lg hover:scale-110 transition-transform"
+            >
+              <Plus className="h-8 w-8" />
+            </Button>
+          </div>
         </Router>
       </TooltipProvider>
 
-      {/* [NEW] Quick Log Modal */}
       <QuickLogModal
         isOpen={isModalOpen}
         onOpenChange={setIsModalOpen}
