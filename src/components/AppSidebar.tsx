@@ -46,7 +46,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar
-      className={cn("transition-all duration-300", collapsed ? "w-14" : "w-64")}
+      className={cn("transition-all duration-300 z-50", collapsed ? "w-14" : "w-64")}
       collapsible="icon"
     >
       <SidebarContent>
