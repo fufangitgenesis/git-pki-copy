@@ -6,7 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ActivityCategory, ActivityLog, Task, db } from "@/lib/database";
 import { getDateString } from "@/lib/calculations";
-import { Plus, Edit2, Trash2, Link } from "lucide-react";
+import { Plus, Edit2, Trash2, Link, Settings } from "lucide-react";
+import { CategoryManager } from "./CategoryManager";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
@@ -17,6 +18,7 @@ interface ActivityLogFormProps {
   onActivityUpdated: (activity: ActivityLog) => void;
   onActivityDeleted: (activityId: string) => void;
   selectedDate: Date;
+  onCategoriesUpdated?: () => void;
 }
 
 export function ActivityLogForm({ 
@@ -25,7 +27,8 @@ export function ActivityLogForm({
   onActivityLogged, 
   onActivityUpdated, 
   onActivityDeleted, 
-  selectedDate 
+  selectedDate,
+  onCategoriesUpdated 
 }: ActivityLogFormProps) {
   const [name, setName] = useState("");
   const [categoryId, setCategoryId] = useState("");
@@ -218,6 +221,24 @@ export function ActivityLogForm({
                       </div>
                     </SelectItem>
                   ))}
+                  {onCategoriesUpdated && (
+                    <div className="border-t pt-2 mt-2">
+                      <CategoryManager 
+                        categories={categories} 
+                        onCategoriesUpdated={onCategoriesUpdated}
+                        trigger={
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="w-full justify-start text-primary hover:text-primary hover:bg-primary/10"
+                          >
+                            <Plus className="h-3 w-3 mr-2" />
+                            Create more category
+                          </Button>
+                        }
+                      />
+                    </div>
+                  )}
                 </SelectContent>
               </Select>
             </div>

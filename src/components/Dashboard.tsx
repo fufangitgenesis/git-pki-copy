@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { KPICard } from "./KPICard";
 import { ActivityLogForm } from "./ActivityLogForm";
 import { VitalityChecklist } from "./VitalityChecklist";
+import { CategoryManager } from "./CategoryManager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -252,7 +253,15 @@ export function Dashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Tabs defaultValue="activity" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="activity">Log Activity</TabsTrigger>
+                <TabsTrigger value="activity" className="flex items-center gap-2">
+                  Log Activity
+                  <CategoryManager 
+                    categories={categories} 
+                    onCategoriesUpdated={() => {
+                      initializeData();
+                    }}
+                  />
+                </TabsTrigger>
                 <TabsTrigger value="vitality">Vitality</TabsTrigger>
               </TabsList>
               <TabsContent value="activity">
@@ -263,6 +272,9 @@ export function Dashboard() {
                   onActivityUpdated={handleActivityUpdated}
                   onActivityDeleted={handleActivityDeleted}
                   selectedDate={selectedDate}
+                  onCategoriesUpdated={() => {
+                    initializeData();
+                  }}
                 />
               </TabsContent>
               <TabsContent value="vitality">

@@ -207,7 +207,6 @@ class DatabaseManager {
   async getVitalityBonuses(): Promise<VitalityBonus[]> { return this.getFromStore('vitality'); }
 
   // Generic Adders/Updaters
-  async addCategory(category: ActivityCategory): Promise<void> { await this.writeToStore('categories', category); }
   async addVitalityBonus(bonus: VitalityBonus): Promise<void> { await this.writeToStore('vitality', bonus); }
   
   // Activity Methods
@@ -253,6 +252,40 @@ class DatabaseManager {
   async updateGoal(goal: DailyGoal): Promise<void> { await this.writeToStore('goals', goal); }
   async getGoalsByDate(date: string): Promise<DailyGoal[]> { return this.getByDate('goals', date); }
   async deleteGoal(id: string): Promise<void> { await this.deleteFromStore('goals', id); }
+
+  // Category management methods
+  async addCategory(category: ActivityCategory): Promise<void> {
+    await this.writeToStore('categories', category);
+  }
+
+  async updateCategory(category: ActivityCategory): Promise<void> {
+    await this.writeToStore('categories', category);
+  }
+
+  async deleteCategory(categoryId: string): Promise<void> {
+    await this.deleteFromStore('categories', categoryId);
+  }
+
+  // Get all activities (for checking category usage)
+  async getActivities(): Promise<ActivityLog[]> {
+    if (!this.db) throw new Error('Database not initialized');
+    
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(['activities'], 'readonly');
+      const store = transaction.objectStore('activities');
+      const request = store.getAll();
+      
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => {
+        const activities = request.result.map((activity: any) => ({
+          ...activity,
+          startTime: new Date(activity.startTime),
+          endTime: new Date(activity.endTime)
+        }));
+        resolve(activities);
+      };
+    });
+  }
 
   // Task Methods
   async addTask(task: Task): Promise<void> { await this.writeToStore('tasks', task); }
