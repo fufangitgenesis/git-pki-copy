@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ActivityCategory, ActivityLog, Task, db } from "@/lib/database";
+import { ActivityCategory, ActivityLog, db } from "@/lib/database";
 import { getDateString } from "@/lib/calculations";
 import { Plus, Edit2, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -53,7 +53,6 @@ export function ActivityLogForm({
     setEditingActivity(activity);
     setName(activity.name);
     setCategoryId(activity.categoryId);
-    // Note: This assumes startTime and endTime are stored as Date objects
     setStartTime(activity.startTime.toTimeString().slice(0, 5));
     setEndTime(activity.endTime.toTimeString().slice(0, 5));
     setEnergyLevel(activity.energyLevel);
@@ -190,7 +189,7 @@ export function ActivityLogForm({
             <div className="space-y-2">
               <Label htmlFor="energyLevel">Energy Level</Label>
               <Select value={energyLevel} onValueChange={(value: "High" | "Medium" | "Low") => setEnergyLevel(value)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Select energy level" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="High">High Energy</SelectItem>
                   <SelectItem value="Medium">Medium Energy</SelectItem>
@@ -211,13 +210,59 @@ export function ActivityLogForm({
         </CardContent>
       </Card>
 
+      {/* [FIXED] Re-implemented the missing activity list */}
       {!isModal && activities.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>Today's Activities</CardTitle>
           </Header>
           <CardContent>
-            {/* List rendering logic would go here */}
+            <div className="space-y-3">
+              {activities
+                .sort((a, b) => a.startTime.getTime() - b.startTime.getTime())
+                .map((activity) => {
+                  const category = categories.find(cat => cat.id === activity.categoryId);
+                  return (
+                    <div key={activity.id} className="flex items-center justify-between p-3 rounded-lg border bg-muted/20">
+                      <div className="flex items-center gap-3">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: category?.color }} />
+                        <div>
+                          <p className="font-medium text-sm">{activity.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {activity.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {activity.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button size="sm" variant="outline" onClick={() => startEdit(activity)}>
+                          <Edit2 className="h-3 w-3" />
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button size="sm" variant="outline">
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Activity</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete "{activity.name}"? This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDelete(activity.id)}>
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
           </CardContent>
         </Card>
       )}
