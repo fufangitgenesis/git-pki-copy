@@ -5,20 +5,20 @@ import { useEffect, useState } from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
-// [UPDATED] Add 'collapsed' prop to the interface
 interface ThemeToggleProps {
   collapsed?: boolean;
 }
 
 export function ThemeToggle({ collapsed = false }: ThemeToggleProps) {
-  const { theme, setTheme } = useTheme();
+  // [FIXED] Use 'resolvedTheme' to get the actual current theme ("light" or "dark")
+  const { theme, resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Render a placeholder button until the theme is mounted to avoid hydration mismatch
+  // Render a placeholder to prevent layout shift before the component is mounted
   if (!mounted) {
     return (
       <Button variant="ghost" size="icon" className={cn(
@@ -31,20 +31,19 @@ export function ThemeToggle({ collapsed = false }: ThemeToggleProps) {
   }
 
   const toggleTheme = () => {
-    setTheme(theme === "light" ? "dark" : "light");
+    setTheme(resolvedTheme === "light" ? "dark" : "light");
   };
 
+  // [FIXED] All display logic now uses 'resolvedTheme'
   const buttonContent = (
     <>
-      {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-      {/* [UPDATED] Conditionally render the text based on the 'collapsed' prop */}
+      {resolvedTheme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
       {!collapsed && (
-        <span className="ml-2">{theme === "light" ? "Dark Mode" : "Light Mode"}</span>
+        <span className="ml-2">{resolvedTheme === "light" ? "Dark Mode" : "Light Mode"}</span>
       )}
     </>
   );
 
-  // If collapsed, wrap the button in a tooltip for better UX
   if (collapsed) {
     return (
       <Tooltip>
@@ -54,13 +53,12 @@ export function ThemeToggle({ collapsed = false }: ThemeToggleProps) {
           </Button>
         </TooltipTrigger>
         <TooltipContent side="right">
-          <p>{theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"}</p>
+          <p>{resolvedTheme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"}</p>
         </TooltipContent>
       </Tooltip>
     );
   }
 
-  // If not collapsed, render the button as normal
   return (
     <Button variant="ghost" size="sm" onClick={toggleTheme} className="w-full justify-start">
       {buttonContent}
