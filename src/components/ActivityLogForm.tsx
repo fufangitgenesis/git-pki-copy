@@ -18,6 +18,7 @@ interface ActivityLogFormProps {
   onActivityDeleted: (activityId: string) => void;
   selectedDate: Date;
   isModal?: boolean; // [NEW] Prop to control UI in modal mode
+  onCategoriesUpdated?: () => void;
 }
 
 export function ActivityLogForm({ 
