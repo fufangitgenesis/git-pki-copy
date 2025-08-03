@@ -9,6 +9,7 @@ import { getDateString } from "@/lib/calculations";
 import { Plus, Edit2, Trash2, Link } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { CategoryManager } from "./CategoryManager"; // [NEW] Import CategoryManager
 
 interface ActivityLogFormProps {
   categories: ActivityCategory[];
@@ -16,6 +17,7 @@ interface ActivityLogFormProps {
   onActivityLogged: (activity: ActivityLog) => void;
   onActivityUpdated: (activity: ActivityLog) => void;
   onActivityDeleted: (activityId: string) => void;
+  onCategoriesUpdated: () => void; // [NEW] Add callback for category updates
   selectedDate: Date;
   isModal?: boolean;
 }
@@ -26,6 +28,7 @@ export function ActivityLogForm({
   onActivityLogged, 
   onActivityUpdated, 
   onActivityDeleted, 
+  onCategoriesUpdated,
   selectedDate,
   isModal = false 
 }: ActivityLogFormProps) {
@@ -65,7 +68,6 @@ export function ActivityLogForm({
                 <SelectTrigger>
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
-                {/* [FIXED] Mapped over categories to render the options */}
                 <SelectContent>
                   {categories.map((category) => (
                     <SelectItem key={category.id} value={category.id}>
@@ -78,6 +80,25 @@ export function ActivityLogForm({
                       </div>
                     </SelectItem>
                   ))}
+                  {/* [NEW] "Create more categories" option */}
+                  <div className="border-t pt-2 mt-2">
+                    <CategoryManager 
+                      categories={categories} 
+                      onCategoriesUpdated={onCategoriesUpdated}
+                      trigger={
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="w-full justify-start text-primary hover:text-primary hover:bg-primary/10"
+                          // Use onMouseDown to prevent the select from closing
+                          onMouseDown={(e) => e.preventDefault()}
+                        >
+                          <Plus className="h-3 w-3 mr-2" />
+                          Create or manage categories
+                        </Button>
+                      }
+                    />
+                  </div>
                 </SelectContent>
               </Select>
             </div>
@@ -116,7 +137,7 @@ export function ActivityLogForm({
         <Card>
           <CardHeader>
             <CardTitle>Today's Activities</CardTitle>
-          </CardHeader>
+          </Header>
           <CardContent>
             {/* List rendering logic */}
           </CardContent>
