@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
 // [UPDATED] Add 'collapsed' prop to the interface
 interface ThemeToggleProps {
