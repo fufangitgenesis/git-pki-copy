@@ -29,13 +29,13 @@ export function AppSidebar() {
   // Classes for the expanded navigation links
   const expandedNavCls = ({ isActive }: { isActive: boolean }) =>
     cn(
-      "flex items-center h-12 text-base px-4 rounded-md",
+      "flex items-center h-12 text-base px-4 rounded-md w-full", // [FIXED] Added w-full
       isActive 
         ? "bg-primary/10 text-primary font-medium" 
         : "hover:bg-muted/50 text-muted-foreground hover:text-foreground"
     );
 
-  // [FIXED] Separate classes for the collapsed icon buttons
+  // Classes for the collapsed icon buttons
   const collapsedNavCls = ({ isActive }: { isActive: boolean }) =>
     cn(
       "flex items-center justify-center h-12 w-10 rounded-md",
@@ -69,7 +69,8 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu className="space-y-2 px-2">
               {navigationItems.map((item) => (
-                <SidebarMenuItem key={item.title} className="flex justify-center">
+                // [FIXED] Apply justify-center only when collapsed
+                <SidebarMenuItem key={item.title} className={cn(collapsed && "flex justify-center")}>
                   {collapsed ? (
                     <Tooltip>
                       <TooltipTrigger asChild>
