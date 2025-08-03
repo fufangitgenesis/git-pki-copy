@@ -46,6 +46,7 @@ export function QuickLogModal({
             onActivityLogged={handleActivityLogged}
             onActivityUpdated={() => {}} // Not used here
             onActivityDeleted={() => {}} // Not used here
+            onCategoriesUpdated={() => {}} // Not used here
             selectedDate={new Date()} // Always logs for today
             isModal={true} // A new prop to hide non-essential UI
           />
