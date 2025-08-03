@@ -1,5 +1,5 @@
 import { Home, Target, ClipboardList, BarChart3, Calendar } from "lucide-react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import {
   Sidebar,
   SidebarContent,
@@ -13,6 +13,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const navigationItems = [
   { title: "Dashboard", url: "/", icon: Home },
@@ -23,11 +24,8 @@ const navigationItems = [
 
 export function AppSidebar() {
   const { state } = useSidebar();
-  const location = useLocation();
-  const currentPath = location.pathname;
   const collapsed = state === "collapsed";
 
-  const isActive = (path: string) => currentPath === path;
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
     isActive 
       ? "bg-primary/10 text-primary font-medium border-r-2 border-primary h-12 text-base" 
@@ -59,12 +57,21 @@ export function AppSidebar() {
             <SidebarMenu className="space-y-2">
               {navigationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink to={item.url} end className={getNavCls}>
+                  {collapsed ? (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <NavLink to={item.url} end={item.url === "/"} className={getNavCls}>
+                          <item.icon className="h-5 w-5" />
+                        </NavLink>
+                      </TooltipTrigger>
+                      <TooltipContent side="right"><p>{item.title}</p></TooltipContent>
+                    </Tooltip>
+                  ) : (
+                    <NavLink to={item.url} end={item.url === "/"} className={getNavCls}>
                       <item.icon className="mr-3 h-5 w-5" />
-                      {!collapsed && <span className="text-base">{item.title}</span>}
+                      <span className="text-base">{item.title}</span>
                     </NavLink>
-                  </SidebarMenuButton>
+                  )}
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
@@ -72,8 +79,9 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       
-      <SidebarFooter className="p-4">
-        <ThemeToggle />
+      <SidebarFooter className="p-2">
+        {/* [UPDATED] Pass the 'collapsed' state to the ThemeToggle component */}
+        <ThemeToggle collapsed={collapsed} />
       </SidebarFooter>
     </Sidebar>
   );
