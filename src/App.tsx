@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
@@ -9,34 +10,90 @@ import NotFound from "@/pages/NotFound";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "next-themes";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { QuickLogModal } from "@/components/QuickLogModal";
+import { db, ActivityCategory, ActivityLog } from "@/lib/database";
+import { useToast } from "@/hooks/use-toast";
 
 function App() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [categories, setCategories] = useState<ActivityCategory[]>([]);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    // Load categories once when the app starts
+    const loadInitialData = async () => {
+      await db.init();
+      const cats = await db.getCategories();
+      setCategories(cats);
+    };
+    loadInitialData();
+  }, []);
+
+  const handleActivityLogged = async (activity: ActivityLog) => {
+    try {
+      await db.addActivity(activity);
+      toast({
+        title: "Activity Logged",
+        description: `Successfully logged ${activity.name}.`
+      });
+      // You might want to add a global state management or event emitter
+      // to notify the dashboard to refresh its data.
+      // For now, a page refresh would be needed to see the update on the dashboard.
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to log activity.",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <TooltipProvider>
         <Router>
-        <SidebarProvider>
-          <div className="min-h-screen flex w-full">
-            <AppSidebar />
-            <div className="flex-1 flex flex-col">
-              <header className="h-12 flex items-center border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-                <SidebarTrigger className="ml-4" />
-              </header>
-              <main className="flex-1">
-                <Routes>
-                  <Route path="/" element={<Dashboard />} />
-                  <Route path="/goals" element={<DailyGoals />} />
-                  <Route path="/tasks" element={<Tasks />} />
-                  <Route path="/analytics" element={<Analytics />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </main>
+          <SidebarProvider>
+            <div className="min-h-screen flex w-full">
+              <AppSidebar />
+              <div className="flex-1 flex flex-col relative"> {/* Added relative positioning */}
+                <header className="h-12 flex items-center border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40">
+                  <SidebarTrigger className="ml-4" />
+                </header>
+                <main className="flex-1">
+                  <Routes>
+                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/goals" element={<DailyGoals />} />
+                    <Route path="/tasks" element={<Tasks />} />
+                    <Route path="/analytics" element={<Analytics />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </main>
+
+                {/* [NEW] Floating Action Button */}
+                <div className="absolute bottom-8 right-8 z-50">
+                  <Button
+                    onClick={() => setIsModalOpen(true)}
+                    className="h-16 w-16 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-lg hover:scale-110 transition-transform"
+                  >
+                    <Plus className="h-8 w-8" />
+                  </Button>
+                </div>
+              </div>
             </div>
-          </div>
-        </SidebarProvider>
-        <Toaster />
+          </SidebarProvider>
+          <Toaster />
         </Router>
       </TooltipProvider>
+
+      {/* [NEW] Quick Log Modal */}
+      <QuickLogModal
+        isOpen={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        categories={categories}
+        onActivityLogged={handleActivityLogged}
+      />
     </ThemeProvider>
   );
 }
