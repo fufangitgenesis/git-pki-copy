@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/sidebar";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils"; // Make sure cn is imported
+import { cn } from "@/lib/utils";
 
 const navigationItems = [
   { title: "Dashboard", url: "/", icon: Home },
@@ -26,11 +26,21 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
 
-  const getNavCls = ({ isActive }: { isActive: boolean }) =>
+  // Classes for the expanded navigation links
+  const expandedNavCls = ({ isActive }: { isActive: boolean }) =>
     cn(
-      "flex items-center h-12 text-base px-4", 
+      "flex items-center h-12 text-base px-4 rounded-md",
       isActive 
-        ? "bg-primary/10 text-primary font-medium border-r-2 border-primary" 
+        ? "bg-primary/10 text-primary font-medium" 
+        : "hover:bg-muted/50 text-muted-foreground hover:text-foreground"
+    );
+
+  // [FIXED] Separate classes for the collapsed icon buttons
+  const collapsedNavCls = ({ isActive }: { isActive: boolean }) =>
+    cn(
+      "flex items-center justify-center h-12 w-10 rounded-md",
+      isActive
+        ? "bg-primary/10 text-primary"
         : "hover:bg-muted/50 text-muted-foreground hover:text-foreground"
     );
 
@@ -59,18 +69,18 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu className="space-y-2 px-2">
               {navigationItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
+                <SidebarMenuItem key={item.title} className="flex justify-center">
                   {collapsed ? (
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <NavLink to={item.url} end={item.url === "/"} className={cn(getNavCls({isActive: false}), "justify-center")}>
+                        <NavLink to={item.url} end={item.url === "/"} className={collapsedNavCls}>
                           <item.icon className="h-5 w-5" />
                         </NavLink>
                       </TooltipTrigger>
                       <TooltipContent side="right"><p>{item.title}</p></TooltipContent>
                     </Tooltip>
                   ) : (
-                    <NavLink to={item.url} end={item.url === "/"} className={getNavCls}>
+                    <NavLink to={item.url} end={item.url === "/"} className={expandedNavCls}>
                       <item.icon className="mr-3 h-5 w-5" />
                       <span className="text-base">{item.title}</span>
                     </NavLink>
@@ -82,7 +92,6 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       
-      {/* [FIXED] Added flex and justify-center when collapsed */}
       <SidebarFooter className={cn("p-2", collapsed && "flex justify-center")}>
         <ThemeToggle collapsed={collapsed} />
       </SidebarFooter>
