@@ -6,10 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ActivityCategory, ActivityLog, Task, db } from "@/lib/database";
 import { getDateString } from "@/lib/calculations";
-import { Plus, Edit2, Trash2, Link } from "lucide-react";
+import { Plus, Edit2, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { CategoryManager } from "./CategoryManager"; // [NEW] Import CategoryManager
+import { CategoryManager } from "./CategoryManager";
 
 interface ActivityLogFormProps {
   categories: ActivityCategory[];
@@ -17,7 +17,7 @@ interface ActivityLogFormProps {
   onActivityLogged: (activity: ActivityLog) => void;
   onActivityUpdated: (activity: ActivityLog) => void;
   onActivityDeleted: (activityId: string) => void;
-  onCategoriesUpdated: () => void; // [NEW] Add callback for category updates
+  onCategoriesUpdated: () => void;
   selectedDate: Date;
   isModal?: boolean;
 }
@@ -40,9 +40,89 @@ export function ActivityLogForm({
   const [editingActivity, setEditingActivity] = useState<ActivityLog | null>(null);
   const { toast } = useToast();
 
+  const resetForm = () => {
+    setName("");
+    setCategoryId("");
+    setStartTime("");
+    setEndTime("");
+    setEnergyLevel("Medium");
+    setEditingActivity(null);
+  };
+
+  const startEdit = (activity: ActivityLog) => {
+    setEditingActivity(activity);
+    setName(activity.name);
+    setCategoryId(activity.categoryId);
+    // Note: This assumes startTime and endTime are stored as Date objects
+    setStartTime(activity.startTime.toTimeString().slice(0, 5));
+    setEndTime(activity.endTime.toTimeString().slice(0, 5));
+    setEnergyLevel(activity.energyLevel);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // ... (rest of the submit logic remains the same)
+    
+    if (!name || !categoryId || !startTime || !endTime) {
+      toast({ title: "Validation Error", description: "Please fill in all required fields.", variant: "destructive" });
+      return;
+    }
+
+    const category = categories.find(cat => cat.id === categoryId);
+    if (!category) {
+      toast({ title: "Error", description: "Invalid category selected.", variant: "destructive" });
+      return;
+    }
+
+    const start = new Date(selectedDate);
+    const [startHour, startMinute] = startTime.split(':').map(Number);
+    start.setHours(startHour, startMinute, 0, 0);
+
+    const end = new Date(selectedDate);
+    const [endHour, endMinute] = endTime.split(':').map(Number);
+    end.setHours(endHour, endMinute, 0, 0);
+
+    if (end <= start) {
+      toast({ title: "Validation Error", description: "End time must be after start time.", variant: "destructive" });
+      return;
+    }
+
+    const duration = end.getTime() - start.getTime();
+    const hours = duration / (1000 * 60 * 60);
+    const points = hours * category.points;
+
+    const activity: ActivityLog = {
+      id: editingActivity?.id || crypto.randomUUID(),
+      name,
+      categoryId,
+      startTime: start,
+      endTime: end,
+      duration,
+      points,
+      energyLevel,
+      date: getDateString(selectedDate)
+    };
+
+    try {
+      if (editingActivity) {
+        await onActivityUpdated(activity);
+        toast({ title: "Activity Updated", description: `Successfully updated ${name}.` });
+      } else {
+        await onActivityLogged(activity);
+        toast({ title: "Activity Logged", description: `Successfully logged ${name}.` });
+      }
+      resetForm();
+    } catch (error) {
+      toast({ title: "Error", description: `Failed to save activity.`, variant: "destructive" });
+    }
+  };
+
+  const handleDelete = async (activityId: string) => {
+    try {
+      await onActivityDeleted(activityId);
+      toast({ title: "Activity Deleted", description: "Activity has been successfully deleted." });
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to delete activity.", variant: "destructive" });
+    }
   };
 
   return (
@@ -72,15 +152,11 @@ export function ActivityLogForm({
                   {categories.map((category) => (
                     <SelectItem key={category.id} value={category.id}>
                       <div className="flex items-center gap-2">
-                        <div 
-                          className="w-3 h-3 rounded-full" 
-                          style={{ backgroundColor: category.color }}
-                        />
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: category.color }} />
                         <span>{category.name}</span>
                       </div>
                     </SelectItem>
                   ))}
-                  {/* [NEW] "Create more categories" option */}
                   <div className="border-t pt-2 mt-2">
                     <CategoryManager 
                       categories={categories} 
@@ -90,7 +166,6 @@ export function ActivityLogForm({
                           variant="ghost" 
                           size="sm" 
                           className="w-full justify-start text-primary hover:text-primary hover:bg-primary/10"
-                          // Use onMouseDown to prevent the select from closing
                           onMouseDown={(e) => e.preventDefault()}
                         >
                           <Plus className="h-3 w-3 mr-2" />
@@ -128,6 +203,9 @@ export function ActivityLogForm({
                 <Plus className="h-4 w-4 mr-2" />
                 {editingActivity ? 'Update Activity' : 'Log Activity'}
               </Button>
+              {editingActivity && (
+                <Button type="button" variant="outline" onClick={resetForm}>Cancel</Button>
+              )}
             </div>
           </form>
         </CardContent>
@@ -139,7 +217,7 @@ export function ActivityLogForm({
             <CardTitle>Today's Activities</CardTitle>
           </Header>
           <CardContent>
-            {/* List rendering logic */}
+            {/* List rendering logic would go here */}
           </CardContent>
         </Card>
       )}
