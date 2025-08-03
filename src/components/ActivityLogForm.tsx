@@ -210,12 +210,11 @@ export function ActivityLogForm({
         </CardContent>
       </Card>
 
-      {/* [FIXED] Re-implemented the missing activity list */}
       {!isModal && activities.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>Today's Activities</CardTitle>
-          </Header>
+          </CardHeader>
           <CardContent>
             <div className="space-y-3">
               {activities
