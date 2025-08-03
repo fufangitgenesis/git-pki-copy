@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ActivityCategory, ActivityLog, db } from "@/lib/database";
 import { getDateString } from "@/lib/calculations";
-import { Plus, Edit2, Trash2, Settings } from "lucide-react";
+import { Plus, Edit2, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { CategoryManager } from "./CategoryManager";
@@ -142,19 +142,7 @@ export function ActivityLogForm({
               <Input id="name" placeholder="e.g., Writing report, Code review" value={name} onChange={(e) => setName(e.target.value)} required />
             </div>
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="category">Category</Label>
-                <CategoryManager 
-                  categories={categories} 
-                  onCategoriesUpdated={onCategoriesUpdated}
-                  trigger={
-                    <Button variant="ghost" size="sm" className="text-xs">
-                      <Settings className="h-3 w-3 mr-1" />
-                      Manage categories
-                    </Button>
-                  }
-                />
-              </div>
+              <Label htmlFor="category">Category</Label>
               <Select value={categoryId} onValueChange={setCategoryId} required>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a category" />
@@ -168,6 +156,23 @@ export function ActivityLogForm({
                       </div>
                     </SelectItem>
                   ))}
+                  <div className="border-t pt-2 mt-2">
+                    <CategoryManager 
+                      categories={categories} 
+                      onCategoriesUpdated={onCategoriesUpdated}
+                      trigger={
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="w-full justify-start text-primary hover:text-primary hover:bg-primary/10"
+                          onMouseDown={(e) => e.preventDefault()}
+                        >
+                          <Plus className="h-3 w-3 mr-2" />
+                          Create or manage categories
+                        </Button>
+                      }
+                    />
+                  </div>
                 </SelectContent>
               </Select>
             </div>
