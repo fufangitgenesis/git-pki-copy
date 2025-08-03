@@ -7,13 +7,13 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
-  SidebarMenuButton,
   SidebarMenuItem,
   SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils"; // Make sure cn is imported
 
 const navigationItems = [
   { title: "Dashboard", url: "/", icon: Home },
@@ -26,14 +26,18 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
 
+  // [FIXED] Added 'flex items-center' to ensure icon and text are on the same line.
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
-    isActive 
-      ? "bg-primary/10 text-primary font-medium border-r-2 border-primary h-12 text-base" 
-      : "hover:bg-muted/50 text-muted-foreground hover:text-foreground h-12 text-base";
+    cn(
+      "flex items-center h-12 text-base px-4", // Added padding for alignment
+      isActive 
+        ? "bg-primary/10 text-primary font-medium border-r-2 border-primary" 
+        : "hover:bg-muted/50 text-muted-foreground hover:text-foreground"
+    );
 
   return (
     <Sidebar
-      className={collapsed ? "w-14" : "w-64"}
+      className={cn("transition-all duration-300", collapsed ? "w-14" : "w-64")}
       collapsible="icon"
     >
       <SidebarContent>
@@ -52,15 +56,15 @@ export function AppSidebar() {
         </div>
 
         <SidebarGroup>
-          <SidebarGroupLabel className="text-sm font-medium">Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel className="px-4 text-sm font-medium">Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-2">
+            <SidebarMenu className="space-y-2 px-2">
               {navigationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   {collapsed ? (
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <NavLink to={item.url} end={item.url === "/"} className={getNavCls}>
+                        <NavLink to={item.url} end={item.url === "/"} className={cn(getNavCls({isActive: false}), "justify-center")}>
                           <item.icon className="h-5 w-5" />
                         </NavLink>
                       </TooltipTrigger>
@@ -80,7 +84,6 @@ export function AppSidebar() {
       </SidebarContent>
       
       <SidebarFooter className="p-2">
-        {/* [UPDATED] Pass the 'collapsed' state to the ThemeToggle component */}
         <ThemeToggle collapsed={collapsed} />
       </SidebarFooter>
     </Sidebar>
