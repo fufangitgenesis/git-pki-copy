@@ -26,10 +26,9 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
 
-  // [FIXED] Added 'flex items-center' to ensure icon and text are on the same line.
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
     cn(
-      "flex items-center h-12 text-base px-4", // Added padding for alignment
+      "flex items-center h-12 text-base px-4", 
       isActive 
         ? "bg-primary/10 text-primary font-medium border-r-2 border-primary" 
         : "hover:bg-muted/50 text-muted-foreground hover:text-foreground"
@@ -83,7 +82,8 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       
-      <SidebarFooter className="p-2">
+      {/* [FIXED] Added flex and justify-center when collapsed */}
+      <SidebarFooter className={cn("p-2", collapsed && "flex justify-center")}>
         <ThemeToggle collapsed={collapsed} />
       </SidebarFooter>
     </Sidebar>
