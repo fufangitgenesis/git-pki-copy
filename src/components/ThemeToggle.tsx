@@ -10,20 +10,17 @@ interface ThemeToggleProps {
 }
 
 export function ThemeToggle({ collapsed = false }: ThemeToggleProps) {
-  // [FIXED] Use 'resolvedTheme' to get the actual current theme ("light" or "dark")
-  const { theme, resolvedTheme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Render a placeholder to prevent layout shift before the component is mounted
   if (!mounted) {
     return (
       <Button variant="ghost" size="icon" className={cn(
-        "w-full justify-center",
-        !collapsed && "sm:justify-start"
+        !collapsed && "w-full sm:justify-start"
       )}>
         <div className="w-4 h-4" />
       </Button>
@@ -34,7 +31,6 @@ export function ThemeToggle({ collapsed = false }: ThemeToggleProps) {
     setTheme(resolvedTheme === "light" ? "dark" : "light");
   };
 
-  // [FIXED] All display logic now uses 'resolvedTheme'
   const buttonContent = (
     <>
       {resolvedTheme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
@@ -48,7 +44,8 @@ export function ThemeToggle({ collapsed = false }: ThemeToggleProps) {
     return (
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="icon" onClick={toggleTheme} className="w-full">
+          {/* [FIXED] Removed the w-full class to allow the button to be a proper icon size */}
+          <Button variant="ghost" size="icon" onClick={toggleTheme}>
             {buttonContent}
           </Button>
         </TooltipTrigger>
