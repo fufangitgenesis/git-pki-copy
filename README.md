@@ -61,38 +61,6 @@ This project is being built in stages. Here is the current development plan:
 
 ---
 
-### Getting Started
-
-Since this is a purely client-side application, there's no build process required.
-
-1.  **Clone the repository:**
-    ```bash
-    git clone [https://github.com/your-username/daily-effectiveness-logger.git](https://github.com/your-username/daily-effectiveness-logger.git)
-    ```
-2.  **Navigate to the directory:**
-    ```bash
-    cd daily-effectiveness-logger
-    ```
-3.  **Open the `index.html` file in your browser.**
-    That's it! The application is ready to use.
-
----
-
-### How to Contribute
-
-Contributions are welcome and appreciated! Whether you want to fix a bug, add a feature, or improve documentation, your help is valuable.
-
-1.  **Fork the repository.**
-2.  **Create a new branch** for your feature or fix (`git checkout -b feature/your-feature-name`).
-3.  **Make your changes.**
-4.  **Commit your changes** (`git commit -m 'Add some amazing feature'`).
-5.  **Push to the branch** (`git push origin feature/your-feature-name`).
-6.  **Open a Pull Request.**
-
-Please check the **Issues** tab to see if there are tasks you can help with.
-
----
-
 ### License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
